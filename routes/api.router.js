@@ -14,6 +14,10 @@ router.use('/flights', flightRouter)
 
 router.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
+    let { role } = req.body;
+    if(!role) {
+        role = 'user';
+    }
     if (!name || !email || !password) {
         return res.status(409).send({ message: 'Name, email and password required' });
     }
@@ -26,7 +30,7 @@ router.post('/register', async (req, res) => {
             if (err) {
                 return res.status(501).send({ message: err.message })
             }
-            const user = new UserModel({ name, email, password: hash });
+            const user = new UserModel({ name, email, password: hash, role });
             await user.save()
             res.status(201).send({ message: 'User Registerd Sucessfully' })
         });
