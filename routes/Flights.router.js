@@ -20,6 +20,9 @@ flightRouter.get('/:id', async (req, res) => {
   const {id} = req.params;
   try {
     const flight = await FlightModel.findById(id);
+    if(!flight) {
+      return res.status(404).send({message: 'Flight not Found'})
+    }
     res.send(flight)
   } catch (error) {
     res.status(501).send({message: error.message})
@@ -38,7 +41,7 @@ flightRouter.post('/', authentication, AdminAuth, async (req, res) => {
     !payload.seats ||
     !payload.price
   ) {
-    return res.status(404).send({ message: 'All Feilds Required' });
+    return res.status(400).send({ message: 'All Feilds Required' });
   }
   try {
     const flight = new FlightModel(payload);

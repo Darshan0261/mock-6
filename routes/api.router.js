@@ -15,11 +15,11 @@ router.use('/flights', flightRouter)
 router.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
     let { role } = req.body;
-    if(!role) {
-        role = 'user';
-    }
     if (!name || !email || !password) {
-        return res.status(409).send({ message: 'Name, email and password required' });
+        return res.status(400).send({ message: 'Name, email and password required' });
+    }
+    if (!role) {
+        role = 'user';
     }
     try {
         const userExists = await UserModel.findOne({ email: email });
@@ -42,7 +42,7 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
-        return res.status(409).send({ message: 'Email and password required' });
+        return res.status(400).send({ message: 'Email and password required' });
     }
     try {
         const user = await UserModel.findOne({ email });
@@ -65,26 +65,26 @@ router.post('/login', async (req, res) => {
 })
 
 router.post('/booking', authentication, UserAuth, async (req, res) => {
-    const {flight_id, token} = req.body;
+    const { flight_id, token } = req.body;
     const user_id = token.id;
-    if(!flight_id) {
-        return res.status(409).send('Flight ID and seats required');
+    if (!flight_id) {
+        return res.status(400).send('Flight ID required');
     }
     try {
-        const flight = await FlightModel.findOne({_id: flight_id});
-        if(!flight) {
-            return res.status(404).send({message: 'Flight not Found'});
+        const flight = await FlightModel.findOne({ _id: flight_id });
+        if (!flight) {
+            return res.status(404).send({ message: 'Flight not Found' });
         }
-        if(flight.seats < 1) {
-            return res.status(404).send({message: `Only ${flight.seat} seats availble`});
+        if (flight.seats < 1) {
+            return res.status(404).send({ message: `Only ${flight.seat} seats availble` });
         }
-        const booking = new BookingModel({user: user_id, flight: flight_id})
+        const booking = new BookingModel({ user: user_id, flight: flight_id })
         await booking.save();
         flight.seats--;
         await flight.save();
-        res.status(201).send({message: 'Booking done sucessfully'})
+        res.status(201).send({ message: 'Booking done sucessfully' })
     } catch (error) {
-        return res.status(501).send({messagea: error.message})
+        return res.status(501).send({ messagea: error.message })
     }
 })
 
